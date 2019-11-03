@@ -1,0 +1,186 @@
+#! /bin/bash
+
+# -----------------------------------------------------------------------------
+
+set -eu -o pipefail
+readonly _BASENAME=$( basename ${BASH_SOURCE[0]} )
+readonly _DIRNAME=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && realpath . )
+readonly _ROOT=$( dirname ${_DIRNAME} )
+
+
+# defaults and settings -------------------------------------------------------
+
+source ${_ROOT}/etc/bootstrap/defaults 
+
+
+# settings --------------------------------------------------------------------
+
+host_gcc_root=/opt/gcc-9.2.0
+host_cc=${host_gcc_root}/bin/gcc
+host_cxx=${host_gcc_root}/bin/g++
+host_triple=$( ${host_cxx} -dumpmachine )
+
+
+# -----------------------------------------------------------------------------
+
+project_name=llvm-project
+project_version=9.x
+
+src_root=${_ROOT}/src/${project_name}/${project_version}/
+
+stage1_root=${_ROOT}/obj/${project_name}/${project_version}/${_BASENAME}/stage1
+stage1_build_dir=${stage1_root}/build/
+stage1_target_dir=${stage1_root}/target/
+
+
+# stage1 ----------------------------------------------------------------------
+
+LD_LIBRAY_PATH=${host_gcc_root}/lib64/ \
+${cmake3_binary} \
+    -G Ninja \
+    -S ${src_root}/llvm \
+    -B ${stage1_build_dir} \
+    -Wno-dev \
+    -D CMAKE_BUILD_TYPE=Release \
+    -D CMAKE_CXX_COMPILER=${host_cxx} \
+    -D CMAKE_CXX_COMPILER_LAUNCHER=${ccache_binary} \
+    -D CMAKE_CXX_COMPILER_TARGET=${host_triple} \
+    -D CMAKE_CXX_LINK_FLAGS="-static-libstdc++" \
+    -D CMAKE_C_COMPILER=${host_cc} \
+    -D CMAKE_C_COMPILER_LAUNCHER=${ccache_binary} \
+    -D CMAKE_C_COMPILER_TARGET=${host_triple} \
+    -D CMAKE_INSTALL_PREFIX=${stage1_target_dir} \
+    \
+    -D CLANG_BUILD_EXAMPLES=OFF \
+    -D CLANG_INCLUDE_DOCS=OFF \
+    -D CLANG_INCLUDE_TESTS=OFF \
+    -D CLANG_VENDOR="hello-llvm@georgecox.com" \
+    -D COMPILER_RT_BUILD_LIBFUZZER=OFF \
+    -D COMPILER_RT_BUILD_PROFILE=OFF \
+    -D COMPILER_RT_BUILD_SANITIZERS=OFF \
+    -D COMPILER_RT_BUILD_XRAY=OFF \
+    -D COMPILER_RT_DEFAULT_TARGET_ONLY=ON \
+    -D COMPILER_RT_INCLUDE_TESTS=OFF \
+    -D COMPILER_RT_USE_BUILTINS_LIBRARY=ON \
+    -D LIBCXXABI_USE_LLVM_UNWINDER=ON \
+    -D LIBCXX_CXX_ABI=libcxxabi \
+    -D LIBCXX_CXX_ABI_INCLUDE_PATHS=${src_root}/libcxxabi/include \
+    -D LIBCXX_HAS_MUSL_LIBC=OFF \
+    -D LIBCXX_INCLUDE_BENCHMARKS=OFF \
+    -D LIBCXX_USE_COMPILER_RT=ON \
+    -D LIBUNWIND_USE_COMPILER_RT=ON \
+    -D LIBUNWIND_WEAK_PTHREAD_LIB=ON \
+    -D LLVM_APPEND_VC_REV=OFF \
+    -D LLVM_BUILD_LLVM_DYLIB=ON \
+    -D LLVM_DEFAULT_TARGET_TRIPLE=${host_triple} \
+    -D LLVM_ENABLE_LIBXML2=OFF \
+    -D LLVM_ENABLE_LLD=OFF \
+    -D LLVM_ENABLE_LTO=OFF \
+    -D LLVM_ENABLE_PIC=ON \
+    -D LLVM_ENABLE_ZLIB=OFF \
+    -D LLVM_HOST_TRIPLE=${host_triple} \
+    -D LLVM_INCLUDE_BENCHMARKS=OFF \
+    -D LLVM_INCLUDE_DOCS=OFF \
+    -D LLVM_INCLUDE_EXAMPLES=OFF \
+    -D LLVM_INCLUDE_GO_TESTS=OFF \
+    -D LLVM_INCLUDE_TESTS=OFF \
+    -D LLVM_INSTALL_BINUTILS_SYMLINKS=OFF \
+    -D LLVM_LINK_LLVM_DYLIB=ON \
+    -D LLVM_OPTIMIZED_TABLEGEN=ON \
+    -D LLVM_TARGETS_TO_BUILD=Native \
+    -D LLVM_TOOL_LLVM_ITANIUM_DEMANGLE_FUZZER_BUILD=OFF \
+    -D LLVM_TOOL_LLVM_MC_ASSEMBLE_FUZZER_BUILD=OFF \
+    -D LLVM_TOOL_LLVM_MICROSOFT_DEMANGLE_FUZZER_BUILD=OFF \
+    -D LLVM_VERSION_SUFFIX=""
+
+${ninja_build_binary} -C ${stage1_build_dir}
+${ninja_build_binary} -C ${stage1_build_dir} install
+
+
+# stage2 ----------------------------------------------------------------------
+
+#    -D CMAKE_CXX_FLAGS="$CXXFLAGS" \
+#    -D CMAKE_C_FLAGS="$CFLAGS" \
+## after a working llvm toolchain is installed,change
+
+
+# change from OFF to ON
+#   -D LLVM_ENABLE_LLD=ON
+
+# add
+#	-D CLANG_DEFAULT_RTLIB=compiler-rt \
+#	-D CLANG_DEFAULT_LINKER=lld \
+#	-D CLANG_DEFAULT_CXX_STDLIB='libc++' \
+#	-D CLANG_DEFAULT_UNWINDLIB=libunwind \
+#
+
+host_cc=${stage1_target_dir}/bin/clang
+host_cxx=${stage1_target_dir}/bin/clang++
+host_triple=$( ${host_cxx} -dumpmachine )
+
+stage2_root=${_ROOT}/obj/${project_name}/${project_version}/${_BASENAME}/stage2
+build_dir=${stage1_root}/build/
+target_dir=${stage1_root}/target/
+
+${cmake3_binary} \
+    -G Ninja \
+    -S ${src_root}/llvm \
+    -B ${build_dir} \
+    -Wno-dev \
+    -D CMAKE_BUILD_TYPE=Release \
+    -D CMAKE_CXX_COMPILER=${host_cxx} \
+    -D CMAKE_CXX_COMPILER_LAUNCHER=${ccache_binary} \
+    -D CMAKE_CXX_COMPILER_TARGET=${host_triple} \
+    -D CMAKE_CXX_LINK_FLAGS="-static-libstdc++" \
+    -D CMAKE_C_COMPILER=${host_cc} \
+    -D CMAKE_C_COMPILER_LAUNCHER=${ccache_binary} \
+    -D CMAKE_C_COMPILER_TARGET=${host_triple} \
+    -D CMAKE_INSTALL_PREFIX=${target_dir} \
+    \
+    -D CLANG_BUILD_EXAMPLES=OFF \
+    -D CLANG_DEFAULT_CXX_STDLIB='libc++' \
+    -D CLANG_DEFAULT_LINKER=lld \
+    -D CLANG_DEFAULT_RTLIB=compiler-rt \
+    -D CLANG_DEFAULT_UNWINDLIB=libunwind \
+    -D CLANG_INCLUDE_DOCS=OFF \
+    -D CLANG_INCLUDE_TESTS=OFF \
+    -D CLANG_VENDOR="hello-llvm@georgecox.com" \
+    -D COMPILER_RT_BUILD_LIBFUZZER=OFF \
+    -D COMPILER_RT_BUILD_PROFILE=OFF \
+    -D COMPILER_RT_BUILD_SANITIZERS=OFF \
+    -D COMPILER_RT_BUILD_XRAY=OFF \
+    -D COMPILER_RT_DEFAULT_TARGET_ONLY=ON \
+    -D COMPILER_RT_INCLUDE_TESTS=OFF \
+    -D COMPILER_RT_USE_BUILTINS_LIBRARY=ON \
+    -D LIBCXXABI_USE_LLVM_UNWINDER=ON \
+    -D LIBCXX_CXX_ABI=libcxxabi \
+    -D LIBCXX_CXX_ABI_INCLUDE_PATHS=${src_root}/libcxxabi/include \
+    -D LIBCXX_HAS_MUSL_LIBC=OFF \
+    -D LIBCXX_INCLUDE_BENCHMARKS=OFF \
+    -D LIBCXX_USE_COMPILER_RT=ON \
+    -D LIBUNWIND_USE_COMPILER_RT=ON \
+    -D LIBUNWIND_WEAK_PTHREAD_LIB=ON \
+    -D LLVM_APPEND_VC_REV=OFF \
+    -D LLVM_BUILD_LLVM_DYLIB=ON \
+    -D LLVM_DEFAULT_TARGET_TRIPLE=${host_triple} \
+    -D LLVM_ENABLE_LIBXML2=OFF \
+    -D LLVM_ENABLE_LLD=ON \
+    -D LLVM_ENABLE_LTO=OFF \
+    -D LLVM_ENABLE_PIC=ON \
+    -D LLVM_ENABLE_ZLIB=OFF \
+    -D LLVM_HOST_TRIPLE=${host_triple} \
+    -D LLVM_INCLUDE_BENCHMARKS=OFF \
+    -D LLVM_INCLUDE_DOCS=OFF \
+    -D LLVM_INCLUDE_EXAMPLES=OFF \
+    -D LLVM_INCLUDE_GO_TESTS=OFF \
+    -D LLVM_INCLUDE_TESTS=OFF \
+    -D LLVM_INSTALL_BINUTILS_SYMLINKS=OFF \
+    -D LLVM_LINK_LLVM_DYLIB=ON \
+    -D LLVM_OPTIMIZED_TABLEGEN=ON \
+    -D LLVM_TARGETS_TO_BUILD=Native \
+    -D LLVM_TOOL_LLVM_ITANIUM_DEMANGLE_FUZZER_BUILD=OFF \
+    -D LLVM_TOOL_LLVM_MC_ASSEMBLE_FUZZER_BUILD=OFF \
+    -D LLVM_TOOL_LLVM_MICROSOFT_DEMANGLE_FUZZER_BUILD=OFF \
+    -D LLVM_VERSION_SUFFIX=""
+
+${ninja_build_binary} -C ${stage2_build_dir}
