@@ -1,0 +1,45 @@
+#! /bin/bash
+
+# -----------------------------------------------------------------------------
+
+set -eu -o pipefail
+readonly _DIRNAME=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && realpath . )
+readonly _BASENAME=$( basename ${BASH_SOURCE[0]} )
+readonly _ROOT=$( dirname ${_DIRNAME} )
+
+
+# defaults and settings -------------------------------------------------------
+
+source ${_ROOT}/etc/bootstrap/defaults 
+source ${_ROOT}/etc/bootstrap/settings.${_BASENAME}
+
+
+# generate --------------------------------------------------------------------
+
+[[ -f ${build_dir}/CMakeCache.txt ]] && rm ${build_dir}/CMakeCache.txt
+${cmake3_binary} \
+    -B ${build_dir} \
+    -G Ninja \
+    -S ${src_dir}/llvm \
+    -Wno-dev \
+    \
+    -D CMAKE_MODULE_PATH=${_ROOT}/src/cmake/cmake-checks-cache/CMakeChecksCache \
+    -D CMAKE_C_COMPILER=${host_cc} \
+    -D CMAKE_C_COMPILER_LAUNCHER=${ccache_binary} \
+    -D CMAKE_CXX_COMPILER=${host_cxx} \
+    -D CMAKE_CXX_COMPILER_LAUNCHER=${ccache_binary} \
+    -D CMAKE_INSTALL_PREFIX=${target_dir} \
+    -D CMAKE_CXX_LINK_FLAGS="-static-libstdc++" \
+    \
+    -C ${_ROOT}/src/cmake/${_BASENAME}/stage1.cmake \
+    |& ts "%Y-%m-%d.%H%M.%.S  ${_BASENAME}  cmake "
+
+
+# build -----------------------------------------------------------------------
+
+${ninja_build_binary} -C ${build_dir} stage2 \
+    |& ts "%Y-%m-%d.%H%M.%.S  ${_BASENAME}  stage2 "
+
+${ninja_build_binary} -C ${build_dir} stage2-distribution \
+    |& ts "%Y-%m-%d.%H%M.%.S  ${_BASENAME}  stage2-distribution "
+

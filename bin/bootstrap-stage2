@@ -1,0 +1,69 @@
+#! /bin/bash
+
+# -----------------------------------------------------------------------------
+
+set -eu -o pipefail
+readonly _BASENAME=$( basename ${BASH_SOURCE[0]} )
+readonly _DIRNAME=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && realpath . )
+readonly _ROOT=$( dirname ${_DIRNAME} )
+
+
+# defaults --------------------------------------------------------------------
+
+source ${_ROOT}/etc/defaults 
+
+
+# stage1 settings -------------------------------------------------------------
+
+stage=stage2
+src_path=${_ROOT}/src/${github_path}/${llvm_version}
+obj_path=${_ROOT}/obj/${github_path}/${llvm_version}/${sequence_name}/${stage}
+
+stage1_target_dir=${obj_path/stage2/stage1}/target
+stage1_build_dir=${obj_path/stage2/stage1}/build
+
+stage2_cmake_file=${_ROOT}/etc/cmake/${sequence_name}-${stage}.cmake
+stage2_build_dir=${obj_path}/build
+stage2_target_dir=${obj_path}/target
+#stage2_target_dir=/opt/LLVM-${llvm_version}
+
+
+# reset state -----------------------------------------------------------------
+
+ccache --zero-stats 1>/dev/null 2>&1
+[[ -d ${stage2_build_dir} ]] && rm -rf ${stage2_build_dir}
+[[ -d ${stage2_target_dir} ]] && rm -rf ${stage2_target_dir}
+
+
+# generate --------------------------------------------------------------------
+
+gcc_dumpmachine=$( ${gnu_cc} -dumpmachine )
+
+export LD_LIBRARY_PATH=${stage1_target_dir}/lib/:${gcc_root}/lib64/
+${cmake3_binary} \
+    --debug-trycompile \
+    -D CCACHE_BINARY=${ccache_binary} \
+    -D GCC_DUMPMACHINE=${gcc_dumpmachine} \
+    -D SRC_PATH=${src_path} \
+    -D STAGE1_TARGET_DIR=${stage1_target_dir} \
+    -D STAGE2_TARGET_DIR=${stage2_target_dir} \
+    -G Ninja \
+    -S ${src_path}/llvm \
+    -B ${stage2_build_dir} \
+    -C ${stage2_cmake_file} \
+    -Wno-dev \
+    |& stdbuf -i0 -o0 -e0 nl -s '  ' -w4 -nrz -ba \
+    |& ts "stage2.cmake.generate " \
+    |& ts "%Y-%m-%d.%H%M.%.S "
+
+
+# build -----------------------------------------------------------------------
+
+${ninja_build_binary} \
+    -C ${stage2_build_dir} \
+    -k0 \
+    install \
+    |& stdbuf -i0 -o0 -e0 nl -s '  ' -w4 -nrz -ba \
+    |& ts "stage2.ninja.build " \
+    |& ts "%Y-%m-%d.%H%M.%.S "
+

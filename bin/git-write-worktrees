@@ -1,0 +1,38 @@
+#! /bin/bash
+
+# -----------------------------------------------------------------------------
+
+set -euo pipefail
+readonly _DIRNAME=$( cd "$( dirname "${BASH_SOURCE[ 0 ]}" )" && realpath . )
+readonly _BASENAME=$( basename ${BASH_SOURCE[ 0 ]} )
+readonly _ROOT=$( dirname ${_DIRNAME} )
+
+
+# -----------------------------------------------------------------------------
+
+release=9.x
+worktree=${_ROOT}/src/${github_path}/${release}
+branch=remotes/origin/release/${release}
+
+
+# -----------------------------------------------------------------------------
+
+git_binary=$(which git)
+[[ ! -d ${git_dir} ]] && ${git_binary} clone ${git_url} ${git_dir}
+
+
+# -----------------------------------------------------------------------------
+
+git_binary=/opt/rh/rh-git29/root/bin/git
+rm -rf ${_ROOT}/src/${github_path}
+${git_binary} --git-dir ${git_dir}/.git worktree prune
+${git_binary} --git-dir ${git_dir}/.git worktree add ${worktree} ${branch}
+${git_binary} --git-dir ${git_dir}/.git worktree list
+
+
+# -----------------------------------------------------------------------------
+
+if [[ ! -L ${_ROOT}/src/${github_path}/9.0.1 ]]; then
+    cd ${_ROOT}/src/${github_path}/ && ln -s 9.x 9.0.1
+fi
+

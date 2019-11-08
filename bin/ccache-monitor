@@ -1,0 +1,14 @@
+#! /bin/bash
+
+# -----------------------------------------------------------------------------
+
+set -eu -o pipefail
+readonly _DIRNAME=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && realpath . )
+readonly _BASENAME=$( basename ${BASH_SOURCE[0]} )
+readonly _ROOT=$( dirname ${_DIRNAME} )
+
+
+# -----------------------------------------------------------------------------
+
+CCACHE_DIR=${_ROOT}/var/ccache watch --interval 0.4 ccache --show-stats
+

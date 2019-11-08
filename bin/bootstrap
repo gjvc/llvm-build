@@ -1,0 +1,27 @@
+#! /bin/bash
+
+# -----------------------------------------------------------------------------
+
+set -eu -o pipefail
+readonly _BASENAME=$( basename ${BASH_SOURCE[0]} )
+readonly _DIRNAME=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && realpath . )
+readonly _ROOT=$( dirname ${_DIRNAME} )
+
+
+# defaults --------------------------------------------------------------------
+
+source ${_ROOT}/etc/defaults 
+
+
+# -----------------------------------------------------------------------------
+
+${_DIRNAME}/bootstrap-stage1
+${_DIRNAME}/bootstrap-stage2
+
+
+# -----------------------------------------------------------------------------
+
+stage2_target_dir=${_ROOT}/obj/llvm/llvm-project/${llvm_version}/bootstrap/stage2/target/
+opt_install_dir=/opt/LLVM-${llvm_version}/
+rsync --verbose --archive --delete ${stage2_target_dir}/ ${opt_install_dir}/
+
