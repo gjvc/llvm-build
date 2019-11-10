@@ -11,26 +11,22 @@ readonly _ROOT=$( dirname ${_DIRNAME} )
 # defaults --------------------------------------------------------------------
 
 source ${_ROOT}/etc/defaults 
+source ${_ROOT}/etc/settings 
 
 
-# stage1 settings -------------------------------------------------------------
+# git -------------------------------------------------------------------------
 
-stage=stage1
-src_path=${_ROOT}/src/${github_path}/${llvm_version}
-obj_path=${_ROOT}/obj/${github_path}/${llvm_version}/${sequence_name}/${stage}
-
-stage1_cmake_file=${_ROOT}/etc/cmake/${sequence_name}-${stage}.cmake
-stage1_build_dir=${obj_path}/build
-stage1_target_dir=${obj_path}/target
+[[ ! -d ${src_path} ]] && ${_DIRNAME}/git-write-worktrees
 
 
-# generate --------------------------------------------------------------------
+# prepare ---------------------------------------------------------------------
 
 [[ -d ${stage1_build_dir} ]] && rm -rf ${stage1_build_dir}
 [[ -d ${stage1_target_dir} ]] && rm -rf ${stage1_target_dir}
 
 export LD_LIBRARY_PATH=${gcc_root}/lib64
 ${cmake3_binary} \
+    -LA \
     --debug-trycompile \
     -D CCACHE_BINARY=${ccache_binary} \
     -D GCC_DUMPMACHINE=${gcc_dumpmachine} \
@@ -45,27 +41,28 @@ ${cmake3_binary} \
     -C ${stage1_cmake_file} \
     -Wno-dev \
     |& stdbuf -i0 -o0 -e0 nl -s '  ' -w4 -nrz -ba \
-    |& ts "stage1.cmake.generate " \
-    |& ts "%Y-%m-%d.%H%M.%.S "
-
-
-# reset state -----------------------------------------------------------------
-
-ccache --zero-stats 1>/dev/null 2>&1
+    |& ts 'stage1.cmake.generate ' \
+    |& ts '%Y-%m-%d.%H%M.%.S '
 
 
 # build -----------------------------------------------------------------------
 
+ccache --zero-stats 1>/dev/null 2>&1
+
 ${ninja_build_binary} \
     -C ${stage1_build_dir} \
+    \
     |& stdbuf -i0 -o0 -e0 nl -s '  ' -w4 -nrz -ba \
-    |& ts "stage1.ninja.build " \
-    |& ts "%Y-%m-%d.%H%M.%.S "
+    |& ts 'stage1.ninja.build ' \
+    |& ts '%Y-%m-%d.%H%M.%.S '
+
+
+# install ---------------------------------------------------------------------
 
 ${ninja_build_binary} \
     -C ${stage1_build_dir} \
     install \
     |& stdbuf -i0 -o0 -e0 nl -s '  ' -w4 -nrz -ba \
-    |& ts "stage1.ninja.install " \
-    |& ts "%Y-%m-%d.%H%M.%.S "
+    |& ts 'stage1.ninja.install ' \
+    |& ts '%Y-%m-%d.%H%M.%.S '
 

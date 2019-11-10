@@ -1,0 +1,61 @@
+#! /bin/bash
+
+# -----------------------------------------------------------------------------
+
+set -eu -o pipefail
+readonly _BASENAME=$( basename ${BASH_SOURCE[0]} )
+readonly _DIRNAME=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && realpath . )
+readonly _ROOT=$( dirname ${_DIRNAME} )
+
+
+# defaults --------------------------------------------------------------------
+
+source ${_ROOT}/etc/defaults 
+source ${_ROOT}/etc/settings 
+
+
+# prepare ---------------------------------------------------------------------
+
+[[ -d ${stage3_build_dir} ]] && rm -rf ${stage3_build_dir}
+[[ -d ${stage3_target_dir} ]] && rm -rf ${stage3_target_dir}
+
+export LD_LIBRARY_PATH=${stage2_target_dir}/lib/ 
+${cmake3_binary} \
+    -LA \
+    --debug-trycompile \
+    -D CCACHE_BINARY=${ccache_binary} \
+    -D GCC_DUMPMACHINE=${gcc_dumpmachine} \
+    -D SRC_PATH=${src_path} \
+    -D STAGE2_TARGET_DIR=${stage2_target_dir} \
+    -D STAGE3_TARGET_DIR=${stage3_target_dir} \
+    -G Ninja \
+    -S ${src_path}/llvm \
+    -B ${stage3_build_dir} \
+    -C ${stage3_cmake_file} \
+    -Wno-dev \
+    |& stdbuf -i0 -o0 -e0 nl -s '  ' -w4 -nrz -ba \
+    |& ts 'stage3.cmake.generate ' \
+    |& ts '%Y-%m-%d.%H%M.%.S '
+
+
+# build -----------------------------------------------------------------------
+
+ccache --zero-stats 1>/dev/null 2>&1
+
+${ninja_build_binary} \
+    -C ${stage3_build_dir} \
+    \
+    |& stdbuf -i0 -o0 -e0 nl -s '  ' -w4 -nrz -ba \
+    |& ts 'stage3.ninja.build ' \
+    |& ts '%Y-%m-%d.%H%M.%.S '
+
+
+# install ---------------------------------------------------------------------
+
+${ninja_build_binary} \
+    -C ${stage3_build_dir} \
+    install \
+    |& stdbuf -i0 -o0 -e0 nl -s '  ' -w4 -nrz -ba \
+    |& ts 'stage3.ninja.install ' \
+    |& ts '%Y-%m-%d.%H%M.%.S '
+

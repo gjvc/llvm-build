@@ -13,15 +13,26 @@ readonly _ROOT=$( dirname ${_DIRNAME} )
 source ${_ROOT}/etc/defaults 
 
 
-# -----------------------------------------------------------------------------
+# clean -----------------------------------------------------------------------
 
-${_DIRNAME}/bootstrap-stage1
-${_DIRNAME}/bootstrap-stage2
+rm -rf ${_ROOT}/{obj,log}
 
 
-# -----------------------------------------------------------------------------
+# update worktrees ------------------------------------------------------------
 
-stage2_target_dir=${_ROOT}/obj/llvm/llvm-project/${llvm_version}/bootstrap/stage2/target/
+#${_DIRNAME}/git-write-worktrees
+
+
+# bootstrap -------------------------------------------------------------------
+
+${_DIRNAME}/stage1
+${_DIRNAME}/stage2
+${_DIRNAME}/stage3
+
+
+# install ---------------------------------------------------------------------
+
 opt_install_dir=/opt/LLVM-${llvm_version}/
-rsync --verbose --archive --delete ${stage2_target_dir}/ ${opt_install_dir}/
+stage3_target_dir=${_ROOT}/obj/llvm/llvm-project/${llvm_version}/stage3/target/
+rsync --verbose --archive --delete ${stage3_target_dir}/ ${opt_install_dir}/
 

@@ -1,0 +1,27 @@
+#! /bin/bash
+
+# -----------------------------------------------------------------------------
+
+set -eu -o pipefail
+readonly _DIRNAME=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && realpath . )
+readonly _BASENAME=$( basename ${BASH_SOURCE[0]} )
+readonly _ROOT=$( dirname ${_DIRNAME} )
+
+symbol=${1}
+
+# -----------------------------------------------------------------------------
+
+shopt -s globstar
+set +e
+for _so in ${_ROOT}/obj/**/*.so; do
+
+    nm ${_so} | grep "T .*${symbol}"
+
+    if [[ ${?} -eq 0 ]]; then
+        echo ${_so}
+        find ${_ROOT}/obj -name $(basename ${_so} )
+        echo
+    fi
+
+done
+
