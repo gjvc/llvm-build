@@ -8,9 +8,9 @@ readonly _BASENAME=$( basename ${BASH_SOURCE[ 0 ]} )
 readonly _ROOT=$( dirname ${_DIRNAME} )
 
 
-# defaults --------------------------------------------------------------------
+# tools -----------------------------------------------------------------------
 
-source ${_ROOT}/etc/defaults 
+source ${_ROOT}/etc/tools 
 
 
 # checkout and update ---------------------------------------------------------
@@ -22,8 +22,8 @@ ${git_binary} --git-dir=${git_dir}/.git pull --update
 # write worktrees -------------------------------------------------------------
 
 rm -rf ${_ROOT}/src/${github_path}
-${git_binary} --git-dir ${git_dir}/.git worktree prune
-${git_binary} --git-dir ${git_dir}/.git worktree add --force --checkout --guess-remote ${git_worktree_root}/master  master
-${git_binary} --git-dir ${git_dir}/.git worktree add --force --checkout --guess-remote ${git_worktree_root}/9.x     remotes/origin/release/9.x
-${git_binary} --git-dir ${git_dir}/.git worktree list
+echo ${git_binary} --git-dir ${git_dir}/.git worktree prune
+echo ${git_binary} --git-dir ${git_dir}/.git worktree add --force --checkout --guess-remote ${git_worktree_root}/master  master
+echo ${git_binary} --git-dir ${git_dir}/.git worktree add --force --checkout --guess-remote ${git_worktree_root}/9.x     remotes/origin/release/9.x
+echo ${git_binary} --git-dir ${git_dir}/.git worktree list
 

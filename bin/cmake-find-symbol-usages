@@ -1,0 +1,20 @@
+#! /bin/bash
+
+# -----------------------------------------------------------------------------
+
+set -u -o pipefail
+readonly _DIRNAME=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && realpath . )
+readonly _BASENAME=$( basename ${BASH_SOURCE[0]} )
+readonly _ROOT=$( dirname ${_DIRNAME} )
+
+symbol=${1}
+
+
+# -----------------------------------------------------------------------------
+
+shopt -s globstar
+for f in ${_ROOT}/src/**/CMakeLists.txt; do
+
+    egrep "${symbol}" ${f}
+
+done

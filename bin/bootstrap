@@ -8,14 +8,15 @@ readonly _DIRNAME=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && realpath . )
 readonly _ROOT=$( dirname ${_DIRNAME} )
 
 
-# defaults --------------------------------------------------------------------
-
-source ${_ROOT}/etc/defaults 
-
-
 # clean -----------------------------------------------------------------------
 
-rm -rf ${_ROOT}/{obj,log}
+rm -rf ${_ROOT}/obj
+rm -rf ${_ROOT}/log
+
+
+# tools -----------------------------------------------------------------------
+
+source ${_ROOT}/etc/tools 
 
 
 # update worktrees ------------------------------------------------------------
@@ -36,3 +37,7 @@ opt_install_dir=/opt/LLVM-${llvm_version}/
 stage3_target_dir=${_ROOT}/obj/llvm/llvm-project/${llvm_version}/stage3/target/
 rsync --verbose --archive --delete ${stage3_target_dir}/ ${opt_install_dir}/
 
+file --dereference ${opt_install_dir}/bin/clang
+${opt_install_dir}/bin/clang -v
+
+ldd ${opt_install_dir}/bin/clang

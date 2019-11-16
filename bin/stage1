@@ -8,18 +8,13 @@ readonly _DIRNAME=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && realpath . )
 readonly _ROOT=$( dirname ${_DIRNAME} )
 
 
-# defaults --------------------------------------------------------------------
+# tools -----------------------------------------------------------------------
 
-source ${_ROOT}/etc/defaults 
-source ${_ROOT}/etc/settings 
-
-
-# git -------------------------------------------------------------------------
-
-[[ ! -d ${src_path} ]] && ${_DIRNAME}/git-write-worktrees
+source ${_ROOT}/etc/tools
+source ${_ROOT}/etc/locations 
 
 
-# prepare ---------------------------------------------------------------------
+# cmake -----------------------------------------------------------------------
 
 [[ -d ${stage1_build_dir} ]] && rm -rf ${stage1_build_dir}
 [[ -d ${stage1_target_dir} ]] && rm -rf ${stage1_target_dir}
@@ -29,7 +24,7 @@ ${cmake3_binary} \
     -LA \
     --debug-trycompile \
     -D CCACHE_BINARY=${ccache_binary} \
-    -D GCC_DUMPMACHINE=${gcc_dumpmachine} \
+    -D TARGET_TRIPLE=${target_triple} \
     -D GCC_ROOT=${gcc_root} \
     -D GCC_VERSION=${gcc_version} \
     -D SRC_PATH=${src_path} \
@@ -45,9 +40,12 @@ ${cmake3_binary} \
     |& ts '%Y-%m-%d.%H%M.%.S '
 
 
-# build -----------------------------------------------------------------------
+# ccache ----------------------------------------------------------------------
 
 ccache --zero-stats 1>/dev/null 2>&1
+
+
+# build -----------------------------------------------------------------------
 
 ${ninja_build_binary} \
     -C ${stage1_build_dir} \

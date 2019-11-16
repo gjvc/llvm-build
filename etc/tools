@@ -55,6 +55,5 @@ exec &> >( tee -a ${_STDOUTERR_LOG} )
 
 # llvm ------------------------------------------------------------------------
 
-llvm_version=master
 llvm_version=9.x
 

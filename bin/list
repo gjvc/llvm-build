@@ -1,0 +1,17 @@
+#! /bin/bash
+
+# -----------------------------------------------------------------------------
+
+set -eu -o pipefail
+readonly _BASENAME=$( basename ${BASH_SOURCE[0]} )
+readonly _DIRNAME=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && realpath . )
+readonly _ROOT=$( dirname ${_DIRNAME} )
+
+
+# -----------------------------------------------------------------------------
+
+find ${_ROOT}/obj/ -name clang-9 -o -name ld.lld -o -name '*.a' -o -name '*.so' \
+    |& stdbuf -i0 -o0 -e0 nl -s '  ' -w4 -nrz -ba \
+    |& ts 'stage1.list ' \
+    |& ts '%Y-%m-%d.%H%M.%.S '
+

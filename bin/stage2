@@ -10,8 +10,8 @@ readonly _ROOT=$( dirname ${_DIRNAME} )
 
 # defaults --------------------------------------------------------------------
 
-source ${_ROOT}/etc/defaults 
-source ${_ROOT}/etc/settings
+source ${_ROOT}/etc/tools 
+source ${_ROOT}/etc/locations
 
 
 # prepare ---------------------------------------------------------------------
@@ -24,7 +24,7 @@ ${cmake3_binary} \
     -LA \
     --debug-trycompile \
     -D CCACHE_BINARY=${ccache_binary} \
-    -D GCC_DUMPMACHINE=${gcc_dumpmachine} \
+    -D GCC_DUMPMACHINE=${target_triple} \
     -D SRC_PATH=${src_path} \
     -D STAGE1_TARGET_DIR=${stage1_target_dir} \
     -D STAGE2_TARGET_DIR=${stage2_target_dir} \
