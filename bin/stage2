@@ -8,7 +8,7 @@ readonly _DIRNAME=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && realpath . )
 readonly _ROOT=$( dirname ${_DIRNAME} )
 
 
-# defaults --------------------------------------------------------------------
+# tools -----------------------------------------------------------------------
 
 source ${_ROOT}/etc/tools 
 source ${_ROOT}/etc/locations
