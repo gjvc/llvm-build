@@ -29,6 +29,7 @@ source ${_ROOT}/etc/tools
 ${_DIRNAME}/stage1
 ${_DIRNAME}/stage2
 ${_DIRNAME}/stage3
+${_DIRNAME}/stage4
 
 
 # install ---------------------------------------------------------------------

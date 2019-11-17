@@ -1,0 +1,61 @@
+#! /bin/bash
+
+# -----------------------------------------------------------------------------
+
+set -eu -o pipefail
+readonly _BASENAME=$( basename ${BASH_SOURCE[0]} )
+readonly _DIRNAME=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && realpath . )
+readonly _ROOT=$( dirname ${_DIRNAME} )
+
+
+# tools -----------------------------------------------------------------------
+
+source ${_ROOT}/etc/tools 
+source ${_ROOT}/etc/locations 
+
+
+# prepare ---------------------------------------------------------------------
+
+[[ -d ${stage4_build_dir} ]] && rm -rf ${stage4_build_dir}
+[[ -d ${stage4_target_dir} ]] && rm -rf ${stage4_target_dir}
+
+export LD_LIBRARY_PATH=${stage3_target_dir}/lib/ 
+${cmake3_binary} \
+    -LA \
+    --debug-trycompile \
+    -D CCACHE_BINARY=${ccache_binary} \
+    -D GCC_DUMPMACHINE=${target_triple} \
+    -D SRC_PATH=${src_path} \
+    -D STAGE3_TARGET_DIR=${stage3_target_dir} \
+    -D STAGE4_TARGET_DIR=${stage4_target_dir} \
+    -G Ninja \
+    -S ${src_path}/llvm \
+    -B ${stage4_build_dir} \
+    -C ${stage4_cmake_file} \
+    -Wno-dev \
+    |& stdbuf -i0 -o0 -e0 nl -s '  ' -w4 -nrz -ba \
+    |& ts 'stage4.cmake.generate ' \
+    |& ts '%Y-%m-%d.%H%M.%.S '
+
+
+# build -----------------------------------------------------------------------
+
+ccache --zero-stats 1>/dev/null 2>&1
+
+${ninja_build_binary} \
+    -C ${stage4_build_dir} \
+    \
+    |& stdbuf -i0 -o0 -e0 nl -s '  ' -w4 -nrz -ba \
+    |& ts 'stage4.ninja.build ' \
+    |& ts '%Y-%m-%d.%H%M.%.S '
+
+
+# install ---------------------------------------------------------------------
+
+${ninja_build_binary} \
+    -C ${stage4_build_dir} \
+    install \
+    |& stdbuf -i0 -o0 -e0 nl -s '  ' -w4 -nrz -ba \
+    |& ts 'stage4.ninja.install ' \
+    |& ts '%Y-%m-%d.%H%M.%.S '
+

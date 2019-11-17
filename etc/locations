@@ -40,3 +40,16 @@ stage3_build_dir=${obj_path}/build
 stage3_target_dir=${obj_path}/target
 
 
+# stage4 locations -------------------------------------------------------------
+
+stage=stage4
+src_path=${_ROOT}/src/${github_path}/${llvm_version}
+obj_path=${_ROOT}/obj/${github_path}/${llvm_version}/${stage}
+
+stage3_target_dir=${obj_path/stage4/stage3}/target
+stage3_build_dir=${obj_path/stage4/stage3}/build
+
+stage4_cmake_file=${_ROOT}/etc/${stage}.cmake
+stage4_build_dir=${obj_path}/build
+stage4_target_dir=${obj_path}/target
+
