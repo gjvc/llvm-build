@@ -1,6 +1,22 @@
 #! /bin/bash
 
 
+# thinlto ----------------------------------------------------------------------
+
+thinlto_cache_dir=${_ROOT}/var/thinlto.cache
+
+
+# stage0 locations -------------------------------------------------------------
+
+stage=stage0
+src_path=${_ROOT}/src/${github_path}/${llvm_version}
+obj_path=${_ROOT}/obj/${github_path}/${llvm_version}/${stage}
+
+stage0_cmake_file=${_ROOT}/etc/${stage}.cmake
+stage0_build_dir=${obj_path}/build
+stage0_target_dir=${obj_path}/target
+
+
 # stage1 locations -------------------------------------------------------------
 
 stage=stage1

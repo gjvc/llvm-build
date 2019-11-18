@@ -28,6 +28,7 @@ ${cmake3_binary} \
     -D SRC_PATH=${src_path} \
     -D STAGE1_TARGET_DIR=${stage1_target_dir} \
     -D STAGE2_TARGET_DIR=${stage2_target_dir} \
+    -D THINLTO_CACHE_DIR=${thinlto_cache_dir} \
     -G Ninja \
     -S ${src_path}/llvm \
     -B ${stage2_build_dir} \
