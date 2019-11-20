@@ -1,0 +1,28 @@
+#! /bin/bash
+
+# -----------------------------------------------------------------------------
+
+set -eu -o pipefail
+readonly _BASENAME=$( basename ${BASH_SOURCE[0]} )
+readonly _DIRNAME=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && realpath . )
+readonly _ROOT=$( dirname ${_DIRNAME} )
+
+
+# clean -----------------------------------------------------------------------
+
+source ${_ROOT}/etc/defaults 
+source ${_ROOT}/etc/locations 
+
+
+# install ---------------------------------------------------------------------
+
+stage=${1:-stage2}
+source_dir=${_ROOT}/obj/llvm/llvm-project/${llvm_version}/${stage}/target/
+target_dir=/opt/LLVM-${llvm_version}/
+
+rsync --verbose --archive --delete ${source_dir}/ ${target_dir}/
+
+file --dereference ${target_dir}/bin/clang
+${target_dir}/bin/clang -v
+
+ldd ${target_dir}/bin/clang

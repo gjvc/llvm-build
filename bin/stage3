@@ -28,6 +28,7 @@ ${cmake3_binary} \
     -D SRC_PATH=${src_path} \
     -D STAGE2_TARGET_DIR=${stage2_target_dir} \
     -D STAGE3_TARGET_DIR=${stage3_target_dir} \
+    -D THINLTO_CACHE_DIR=${thinlto_cache_dir} \
     -G Ninja \
     -S ${src_path}/llvm \
     -B ${stage3_build_dir} \
@@ -44,6 +45,7 @@ ccache --zero-stats 1>/dev/null 2>&1
 
 ${ninja_build_binary} \
     -C ${stage3_build_dir} \
+    -v \
     \
     |& stdbuf -i0 -o0 -e0 nl -s '  ' -w4 -nrz -ba \
     |& ts 'stage3.ninja.build ' \

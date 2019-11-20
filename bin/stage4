@@ -44,6 +44,7 @@ ccache --zero-stats 1>/dev/null 2>&1
 
 ${ninja_build_binary} \
     -C ${stage4_build_dir} \
+    -v \
     \
     |& stdbuf -i0 -o0 -e0 nl -s '  ' -w4 -nrz -ba \
     |& ts 'stage4.ninja.build ' \
