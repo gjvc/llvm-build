@@ -31,10 +31,11 @@ set(  GCC_INSTALL_PREFIX                                    /dev/null           
 ####  ####################################################  #########################################################  #####  ######  ##  #
 set(  LLVM_ENABLE_LIBCXX                                    YES                                                        CACHE  BOOL    ""  )
 set(  LLVM_ENABLE_PROJECTS                                  "compiler-rt;libunwind;libcxxabi;libcxx;llvm;clang;lld"    CACHE  STRING  ""  )
-set(  LLVM_STATIC_LINK_CXX_STDLIB                           YES                                                        CACHE  BOOL    ""  )
-set(  LLVM_TARGETS_TO_BUILD                                 X86                                                        CACHE  STRING  ""  )
 set(  LLVM_INCLUDE_GO_TESTS                                 NO                                                         CACHE  BOOL    ""  )
 set(  LLVM_INCLUDE_TESTS                                    NO                                                         CACHE  BOOL    ""  )
+set(  LLVM_OPTIMIZED_TABLEGEN                               YES                                                        CACHE  BOOL    ""  )
+set(  LLVM_STATIC_LINK_CXX_STDLIB                           YES                                                        CACHE  BOOL    ""  )
+set(  LLVM_TARGETS_TO_BUILD                                 X86                                                        CACHE  STRING  ""  )
 
 ####  ####################################################  #########################################################  #####  ######  ##  #
 set(  CLANG_DEFAULT_CXX_STDLIB                              libc++                                                     CACHE  STRING  ""  )
