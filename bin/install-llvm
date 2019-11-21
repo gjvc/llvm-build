@@ -16,7 +16,7 @@ source ${_ROOT}/etc/locations
 
 # install ---------------------------------------------------------------------
 
-stage=${1:-stage2}
+stage=${1:-stage3}
 source_dir=${_ROOT}/obj/llvm/llvm-project/${llvm_version}/${stage}/target/
 target_dir=/opt/LLVM-${llvm_version}/
 

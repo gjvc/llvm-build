@@ -10,6 +10,7 @@ readonly _ROOT=$( dirname ${_DIRNAME} )
 
 # tools -----------------------------------------------------------------------
 
+source ${_ROOT}/etc/defaults
 source ${_ROOT}/etc/tools
 source ${_ROOT}/etc/locations 
 

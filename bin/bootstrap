@@ -16,6 +16,7 @@ rm -rf ${_ROOT}/log
 
 # tools -----------------------------------------------------------------------
 
+source ${_ROOT}/etc/defaults
 source ${_ROOT}/etc/tools 
 
 
@@ -29,5 +30,4 @@ source ${_ROOT}/etc/tools
 ${_DIRNAME}/stage1
 ${_DIRNAME}/stage2
 ${_DIRNAME}/stage3
-${_DIRNAME}/stage4
 
