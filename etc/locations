@@ -12,7 +12,7 @@ stage=stage0
 src_path=${_ROOT}/src/${github_path}/${llvm_version}
 obj_path=${_ROOT}/obj/${github_path}/${llvm_version}/${stage}
 
-stage0_cmake_file=${_ROOT}/etc/${stage}.cmake
+stage0_cmake_file=${_ROOT}/etc/cmake/${stage}.cmake
 stage0_build_dir=${obj_path}/build
 stage0_target_dir=${obj_path}/target
 
@@ -23,7 +23,7 @@ stage=stage1
 src_path=${_ROOT}/src/${github_path}/${llvm_version}
 obj_path=${_ROOT}/obj/${github_path}/${llvm_version}/${stage}
 
-stage1_cmake_file=${_ROOT}/etc/${stage}.cmake
+stage1_cmake_file=${_ROOT}/etc/cmake/${stage}.cmake
 stage1_build_dir=${obj_path}/build
 stage1_target_dir=${obj_path}/target
 
@@ -37,7 +37,7 @@ obj_path=${_ROOT}/obj/${github_path}/${llvm_version}/${stage}
 stage1_target_dir=${obj_path/stage2/stage1}/target
 stage1_build_dir=${obj_path/stage2/stage1}/build
 
-stage2_cmake_file=${_ROOT}/etc/${stage}.cmake
+stage2_cmake_file=${_ROOT}/etc/cmake/${stage}.cmake
 stage2_build_dir=${obj_path}/build
 stage2_target_dir=${obj_path}/target
 
@@ -51,7 +51,7 @@ obj_path=${_ROOT}/obj/${github_path}/${llvm_version}/${stage}
 stage2_target_dir=${obj_path/stage3/stage2}/target
 stage2_build_dir=${obj_path/stage3/stage2}/build
 
-stage3_cmake_file=${_ROOT}/etc/${stage}.cmake
+stage3_cmake_file=${_ROOT}/etc/cmake/${stage}.cmake
 stage3_build_dir=${obj_path}/build
 stage3_target_dir=${obj_path}/target
 
@@ -65,7 +65,7 @@ obj_path=${_ROOT}/obj/${github_path}/${llvm_version}/${stage}
 stage3_target_dir=${obj_path/stage4/stage3}/target
 stage3_build_dir=${obj_path/stage4/stage3}/build
 
-stage4_cmake_file=${_ROOT}/etc/${stage}.cmake
+stage4_cmake_file=${_ROOT}/etc/cmake/${stage}.cmake
 stage4_build_dir=${obj_path}/build
 stage4_target_dir=${obj_path}/target
 
